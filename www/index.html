@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>दूध हिसाब</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Hind:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & ROOT ── */
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+:root{
+  --bg:#F2F5F3;
+  --surface:#FFFFFF;
+  --surface2:#F7FAF8;
+  --ink:#111C16;
+  --ink2:#4A6657;
+  --ink3:#8BA898;
+  --primary:#1B7A4A;
+  --primary-d:#145C37;
+  --primary-m:#23A063;
+  --primary-l:#DFF0E8;
+  --accent:#F0A500;
+  --accent-l:#FFF3D6;
+  --red:#D63B2F;
+  --red-l:#FDECEA;
+  --line:#E3EDE8;
+  --shadow1:0 1px 3px rgba(0,40,20,.06),0 4px 16px rgba(0,40,20,.06);
+  --shadow2:0 4px 20px rgba(0,40,20,.10),0 1px 4px rgba(0,40,20,.06);
+  --shadow3:0 8px 32px rgba(0,40,20,.14),0 2px 8px rgba(0,40,20,.08);
+  --r:18px; --r-sm:13px; --r-xs:10px;
+  --nb-h:64px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+html[data-theme="dark"]{
+  --bg:#0D1810;
+  --surface:#162319;
+  --surface2:#1D2E22;
+  --ink:#E4EEE8;
+  --ink2:#7AAB8A;
+  --ink3:#4A6A55;
+  --primary:#3DBF7A;
+  --primary-d:#2EA066;
+  --primary-m:#4DCF8A;
+  --primary-l:#1A3025;
+  --accent:#F0C040;
+  --accent-l:#2A2010;
+  --red:#E06050;
+  --red-l:#2A1510;
+  --line:#1E3028;
+  --shadow1:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
+  --shadow2:0 4px 20px rgba(0,0,0,.36),0 1px 4px rgba(0,0,0,.22);
+  --shadow3:0 8px 32px rgba(0,0,0,.44),0 2px 8px rgba(0,0,0,.28);
+}
+
+/* ── LAYOUT ── */
+html{ height:100%; overflow:hidden; }
+body{
+  height:100%; overflow:hidden;
+  font-family:'Hind',system-ui,sans-serif;
+  background:var(--bg); color:var(--ink);
+  display:flex; justify-content:center;
+  transition:background .25s,color .25s;
+}
+.num-font,h1,h2,h3{ font-family:'Nunito',system-ui,sans-serif; }
+
+#app{
+  width:100%; max-width:480px;
+  height:100%; display:flex; flex-direction:column;
+  overflow:hidden; position:relative;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  flex:0 0 auto;
+  background:linear-gradient(140deg, var(--primary-d) 0%, var(--primary) 55%, var(--primary-m) 100%);
+  padding:12px 16px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+  box-shadow:0 2px 16px rgba(0,80,40,.22);
+  position:relative; z-index:10;
+}
+.topbar::after{
+  content:''; position:absolute;
+  inset:0; border-radius:inherit;
+  background:radial-gradient(ellipse at 85% 0%, rgba(255,255,255,0.13) 0%, transparent 65%);
+  pointer-events:none;
+}
+.brand{ display:flex; align-items:center; gap:10px; }
+.brand-icon{
+  width:38px; height:38px; border-radius:12px; flex:0 0 38px;
+  background:rgba(255,255,255,.18); border:1.5px solid rgba(255,255,255,.3);
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(6px);
+}
+.brand-text h1{ font-size:18px; color:#fff; font-weight:800; line-height:1.1; letter-spacing:-.2px; }
+.brand-text p{ font-size:11px; color:rgba(255,255,255,.75); font-weight:500; margin-top:1px; }
+.topbar-right{ display:flex; gap:8px; }
+.icon-btn{
+  width:36px; height:36px; border-radius:11px; border:none; cursor:pointer;
+  background:rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center;
+  color:#fff; transition:.15s;
+}
+.icon-btn:active{ background:rgba(255,255,255,.28); transform:scale(.9); }
+
+/* ── SCREEN SCROLL AREA ── */
+.screens{
+  flex:1; overflow:hidden; position:relative; min-height:0;
+}
+.screen{
+  position:absolute; inset:0;
+  overflow-y:auto; overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  display:none;
+  padding:14px 14px calc(var(--nb-h) + var(--safe-b) + 14px);
+}
+.screen.active{ display:block; }
+.screen::-webkit-scrollbar{ display:none; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  flex:0 0 auto;
+  background:var(--surface);
+  border-top:1px solid var(--line);
+  display:flex;
+  padding:6px 0 calc(6px + var(--safe-b));
+  box-shadow:0 -2px 16px rgba(0,0,0,.06);
+  z-index:10;
+}
+.nav-btn{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;
+  border:none; background:transparent; cursor:pointer; padding:5px 4px;
+  color:var(--ink3); font-family:'Hind'; font-size:10px; font-weight:600;
+  transition:color .15s;
+}
+.nav-btn .nv-ic{ width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:21px; line-height:1; }
+.nav-btn.active{ color:var(--primary); }
+.nav-btn:active{ transform:scale(.88); }
+
+/* ── CARDS ── */
+.card{
+  background:var(--surface); border-radius:var(--r);
+  box-shadow:var(--shadow1); padding:16px;
+  margin-bottom:12px; border:1px solid rgba(0,0,0,.03);
+  width:100%; overflow:hidden;
+}
+html[data-theme="dark"] .card{ border-color:rgba(255,255,255,.04); }
+.card-sm{ padding:13px; border-radius:var(--r-sm); }
+
+/* ── CYCLE HERO ── */
+.hero-card{
+  background:linear-gradient(140deg, var(--primary-d), var(--primary-m));
+  border-radius:var(--r); padding:18px 16px;
+  margin-bottom:12px; box-shadow:var(--shadow3);
+  position:relative; overflow:hidden; width:100%;
+}
+.hero-card::before{
+  content:''; position:absolute; right:-24px; top:-24px;
+  width:110px; height:110px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,.1), transparent 70%);
+  pointer-events:none;
+}
+.hero-card::after{
+  content:''; position:absolute; left:-20px; bottom:-20px;
+  width:90px; height:90px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,.06), transparent 70%);
+  pointer-events:none;
+}
+.hero-row{ display:flex; align-items:center; gap:14px; position:relative; z-index:1; }
+.ring-wrap{ flex:0 0 66px; width:66px; height:66px; position:relative; }
+.ring-wrap svg{ width:66px; height:66px; transform:rotate(-90deg); display:block; }
+.ring-bg{ stroke:rgba(255,255,255,.2); }
+.ring-fg{ stroke:#fff; stroke-linecap:round; transition:stroke-dashoffset .6s ease; }
+.ring-label{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:0;
+}
+.ring-label .rn{ font-family:'Nunito'; font-weight:900; font-size:14px; color:#fff; line-height:1; }
+.ring-label .rd{ font-size:9.5px; color:rgba(255,255,255,.75); }
+.hero-info{ flex:1; min-width:0; }
+.hero-lbl{ font-size:10.5px; color:rgba(255,255,255,.75); font-weight:700; letter-spacing:.6px; text-transform:uppercase; }
+.hero-amt{
+  font-family:'Nunito'; font-weight:900; font-size:26px; color:#fff;
+  line-height:1.1; margin:2px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.hero-amt.neg{ color:#FFD0C0; }
+.hero-sub{ font-size:12px; color:rgba(255,255,255,.85); }
+.hero-sub b{ color:#fff; }
+.hero-dates{ font-size:10.5px; color:rgba(255,255,255,.65); margin-top:3px; }
+.streak-pill{
+  display:inline-flex; align-items:center; gap:3px;
+  background:rgba(255,255,255,.18); border-radius:20px;
+  padding:2px 9px; font-size:10.5px; color:#fff; font-weight:700; margin-top:5px;
+}
+
+/* ── NOTICE & ALERT CARDS ── */
+.notice-card{
+  background:var(--accent-l); border:1.5px solid #F0C88050;
+  border-radius:var(--r-sm); padding:12px 13px; margin-bottom:10px; width:100%;
+}
+.notice-card .nt{ font-size:13px; font-weight:700; color:var(--accent); margin-bottom:4px; }
+.notice-card .nb{ font-size:12px; color:#8A6010; line-height:1.55; }
+html[data-theme="dark"] .notice-card .nb{ color:#C0A060; }
+
+.missed-card{
+  background:var(--red-l); border:1.5px solid #D63B2F30;
+  border-radius:var(--r-sm); padding:12px 13px; margin-bottom:10px; width:100%;
+}
+.missed-head{ display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+.missed-title{ font-size:13px; font-weight:700; color:var(--red); }
+.missed-sub{ font-size:11px; color:var(--ink2); margin-top:1px; }
+.chip-row{ display:flex; flex-wrap:wrap; gap:6px; }
+.chip{
+  padding:4px 10px; border-radius:20px;
+  background:var(--surface); border:1.5px solid #D63B2F40;
+  color:var(--red); font-size:11.5px; font-weight:700; cursor:pointer;
+}
+.chip:active{ transform:scale(.92); }
+
+/* ── DATE ROW ── */
+.date-row{
+  display:flex; gap:8px; margin-bottom:10px; align-items:stretch; width:100%;
+}
+.date-row input[type="date"]{
+  flex:1; min-width:0; padding:10px 12px; border-radius:var(--r-xs);
+  border:1.5px solid var(--line); font-size:14px; font-family:'Hind';
+  background:var(--surface); color:var(--ink);
+}
+.date-row input[type="date"]:focus{ outline:none; border-color:var(--primary); }
+html[data-theme="dark"] .date-row input[type="date"]{ color-scheme:dark; }
+.today-btn{
+  flex:0 0 auto; padding:10px 13px; border-radius:var(--r-xs); border:none;
+  background:var(--primary-l); color:var(--primary); font-weight:700;
+  font-size:12px; cursor:pointer; white-space:nowrap; font-family:'Hind';
+}
+.today-btn:active{ transform:scale(.93); }
+
+.date-banner{
+  background:var(--accent-l); color:#8A6010; padding:8px 12px;
+  border-radius:var(--r-xs); font-size:12px; font-weight:600;
+  margin-bottom:10px; text-align:center; border:1px solid #F0C88050;
+  width:100%;
+}
+html[data-theme="dark"] .date-banner{ color:var(--accent); }
+
+/* ── SLOT CARDS ── */
+.slot-card{
+  background:var(--surface); border-radius:var(--r); box-shadow:var(--shadow1);
+  padding:14px 14px 12px; margin-bottom:10px;
+  position:relative; overflow:hidden;
+  border:1px solid rgba(0,0,0,.03); width:100%;
+}
+html[data-theme="dark"] .slot-card{ border-color:rgba(255,255,255,.04); }
+.slot-accent{
+  position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:0 2px 2px 0;
+}
+.slot-morning .slot-accent{ background:linear-gradient(180deg,#F5A520,#FBCF6A); }
+.slot-evening .slot-accent{ background:linear-gradient(180deg,#5B6DD6,#8892E8); }
+.slot-card.absent .slot-accent{ background:linear-gradient(180deg,var(--red),#E07060); }
+
+.slot-head{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:12px; padding-left:2px;
+}
+.slot-title{ display:flex; align-items:center; gap:9px; min-width:0; }
+.slot-icon{
+  width:34px; height:34px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center; flex:0 0 34px;
+}
+.slot-morning .slot-icon{ background:#FEF3DF; color:#D4870A; }
+.slot-evening .slot-icon{ background:#EEEFFB; color:#5B6DD6; }
+html[data-theme="dark"] .slot-morning .slot-icon{ background:#2A1E06; color:#F0C050; }
+html[data-theme="dark"] .slot-evening .slot-icon{ background:#181C38; color:#8892E8; }
+.slot-title h3{ font-size:15px; font-weight:700; white-space:nowrap; }
+
+.absent-btn{
+  flex:0 0 auto; padding:5px 11px; border-radius:20px;
+  border:1.5px solid var(--line); background:transparent;
+  color:var(--ink3); font-size:11px; font-weight:700;
+  cursor:pointer; font-family:'Hind'; transition:.15s;
+  white-space:nowrap;
+}
+.absent-btn.on{ background:var(--red-l); border-color:#D63B2F50; color:var(--red); }
+.absent-btn:active{ transform:scale(.92); }
+
+/* ── FIELD GRID — FIXED OVERFLOW ── */
+.field-row{
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  margin-bottom:10px; width:100%;
+}
+.field{ min-width:0; }
+.field label{
+  display:block; font-size:11px; color:var(--ink2);
+  font-weight:700; margin-bottom:5px; letter-spacing:.2px;
+}
+
+/* ── STEPPER ── */
+.stepper{
+  display:flex; align-items:center; width:100%;
+  border:1.5px solid var(--line); border-radius:var(--r-xs);
+  background:var(--surface); overflow:hidden;
+}
+.step-btn{
+  flex:0 0 34px; width:34px; height:36px; border:none;
+  background:transparent; color:var(--primary); font-size:17px;
+  font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.step-btn:disabled{ color:var(--ink3); cursor:default; }
+.step-btn:active:not(:disabled){ background:var(--primary-l); }
+.stepper input{
+  flex:1; min-width:0; width:0; border:none; background:transparent;
+  text-align:center; font-size:14px; font-family:'Nunito'; font-weight:700;
+  color:var(--ink); padding:0;
+}
+.stepper input:focus{ outline:none; }
+.stepper input:disabled{ color:var(--ink3); }
+
+/* ── NOTE ── */
+.note-link{
+  font-size:11.5px; color:var(--primary); background:none; border:none;
+  cursor:pointer; padding:0 0 6px; font-family:'Hind'; font-weight:600;
+}
+.note-wrap{ margin-bottom:8px; }
+.note-wrap label{ font-size:11px; color:var(--ink2); font-weight:700; margin-bottom:4px; display:block; }
+.note-wrap textarea{
+  width:100%; padding:9px 11px; border-radius:var(--r-xs);
+  border:1.5px solid var(--line); font-size:13px; font-family:'Hind';
+  color:var(--ink); background:var(--surface2); resize:none; line-height:1.5;
+}
+.note-wrap textarea:focus{ outline:none; border-color:var(--primary); }
+
+/* ── AMOUNT ROW ── */
+.amount-row{
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--surface2); border-radius:var(--r-xs); padding:9px 11px;
+}
+.amount-row .albl{ font-size:11.5px; color:var(--ink2); font-weight:600; }
+.amount-row .aval{ font-family:'Nunito'; font-weight:900; font-size:17px; color:var(--primary); }
+
+/* ── BUTTONS ── */
+.btn{
+  display:block; width:100%; padding:13px 16px; border-radius:var(--r-sm);
+  border:none; font-size:15px; font-family:'Nunito'; font-weight:800;
+  cursor:pointer; transition:.15s; letter-spacing:.1px;
+}
+.btn:active{ transform:scale(.97); }
+.btn-primary{
+  background:linear-gradient(135deg,var(--primary-d),var(--primary-m));
+  color:#fff; box-shadow:0 4px 14px rgba(27,122,74,.3);
+}
+.btn-outline{ background:transparent; border:2px solid var(--line); color:var(--ink2); }
+.btn-ghost{ background:var(--primary-l); color:var(--primary); }
+.btn-danger{ background:var(--red-l); color:var(--red); border:1.5px solid #D63B2F30; }
+.btn-sm{ padding:9px 13px; font-size:13px; width:auto; border-radius:var(--r-xs); }
+.btn-row{ display:flex; gap:8px; margin-top:4px; }
+.btn-row .btn{ flex:1; }
+
+/* ── SECTION TITLE ── */
+.sec-title{
+  font-family:'Nunito'; font-size:13px; font-weight:800;
+  color:var(--ink2); margin:16px 0 8px; letter-spacing:.3px; text-transform:uppercase;
+}
+
+/* ── DAY ITEMS ── */
+.day-item{
+  background:var(--surface); border-radius:var(--r-sm);
+  box-shadow:var(--shadow1); padding:11px 13px;
+  margin-bottom:7px; display:flex; align-items:center;
+  justify-content:space-between; cursor:pointer;
+  border:1px solid rgba(0,0,0,.03); width:100%; min-width:0;
+}
+html[data-theme="dark"] .day-item{ border-color:rgba(255,255,255,.04); }
+.day-item:active{ transform:scale(.98); }
+.day-item-left{ min-width:0; flex:1; }
+.day-date{ font-family:'Nunito'; font-weight:700; font-size:13.5px; color:var(--ink); }
+.day-sub{ font-size:11.5px; color:var(--ink2); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.day-amount{ font-family:'Nunito'; font-weight:900; font-size:15px; color:var(--primary); flex:0 0 auto; margin-left:10px; }
+.badge{ display:inline-block; font-size:10px; padding:1px 6px; border-radius:20px; font-weight:700; }
+.badge-absent{ background:var(--red-l); color:var(--red); }
+.badge-note{ background:var(--accent-l); color:var(--accent); }
+
+/* ── FOOTER NOTE ── */
+.footer-note{ text-align:center; font-size:10px; color:var(--ink3); padding:10px 0 2px; opacity:.7; }
+
+/* ── HISTORY / GRAND CARD ── */
+.grand-card{
+  background:linear-gradient(135deg,var(--primary-d),var(--primary-m));
+  border-radius:var(--r); padding:18px 16px; margin-bottom:12px;
+  box-shadow:var(--shadow3); width:100%;
+}
+.grand-card.neg{ background:linear-gradient(135deg,#9A1F14,#C0392B); }
+.gc-label{ font-size:11px; color:rgba(255,255,255,.75); font-weight:700; letter-spacing:.6px; text-transform:uppercase; }
+.gc-amount{ font-family:'Nunito'; font-weight:900; font-size:30px; color:#fff; margin:3px 0 2px; }
+.gc-note{ font-size:12.5px; color:rgba(255,255,255,.8); }
+
+/* ── EXPORT BTN ── */
+.export-btn{
+  display:inline-flex; align-items:center; gap:7px;
+  padding:9px 14px; border-radius:var(--r-xs);
+  border:1.5px solid var(--line); background:var(--surface);
+  color:var(--ink2); font-size:13px; font-weight:700; cursor:pointer;
+  font-family:'Hind'; margin-bottom:12px;
+}
+.export-btn:active{ transform:scale(.96); }
+
+/* ── CYCLE BLOCKS ── */
+.cycle-block{
+  background:var(--surface); border-radius:var(--r);
+  box-shadow:var(--shadow1); margin-bottom:10px;
+  overflow:hidden; border:1px solid rgba(0,0,0,.03); width:100%;
+}
+html[data-theme="dark"] .cycle-block{ border-color:rgba(255,255,255,.04); }
+.cycle-block-head{
+  padding:14px 15px; display:flex; justify-content:space-between;
+  align-items:center; cursor:pointer;
+}
+.cbh-l .cbh-title{ font-family:'Nunito'; font-weight:800; font-size:14.5px; }
+.cbh-l .cbh-sub{ font-size:11px; color:var(--ink2); margin-top:2px; }
+.cbh-r{ display:flex; align-items:center; gap:7px; flex:0 0 auto; }
+.cbh-total{ font-family:'Nunito'; font-weight:900; font-size:15.5px; color:var(--primary); }
+.cbh-total.neg{ color:var(--red); }
+.cbh-chev{ color:var(--ink3); font-size:11px; transition:transform .22s; }
+.cycle-block.open .cbh-chev{ transform:rotate(180deg); }
+.cycle-body{ display:none; padding:0 14px 14px; border-top:1px solid var(--line); }
+.cycle-block.open .cycle-body{ display:block; }
+
+.day-row{ padding:10px 0; border-bottom:1px solid var(--line); }
+.day-row:last-child{ border-bottom:none; }
+.dr-top{ display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; }
+.dr-detail{ font-size:11.5px; color:var(--ink2); margin-top:3px; line-height:1.65; }
+.dr-actions{ display:flex; gap:6px; margin-top:7px; flex-wrap:wrap; }
+.dr-actions button{
+  padding:4px 10px; border-radius:20px; border:1.5px solid var(--line);
+  background:var(--surface); color:var(--ink2); font-size:11px;
+  cursor:pointer; font-family:'Hind'; font-weight:700;
+}
+.dr-actions button.del{ border-color:#D63B2F30; color:var(--red); background:var(--red-l); }
+.dr-actions button:active{ transform:scale(.93); }
+
+.txn-item{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:9px 0; border-bottom:1px solid var(--line); gap:8px;
+}
+.txn-item:last-child{ border-bottom:none; }
+.txn-l{ min-width:0; flex:1; }
+.txn-label{ font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.txn-date{ font-size:11px; color:var(--ink2); margin-top:1px; }
+.txn-r{ display:flex; align-items:center; gap:6px; flex:0 0 auto; }
+.txn-amt{ font-family:'Nunito'; font-weight:900; font-size:14.5px; white-space:nowrap; }
+.txn-amt.credit{ color:var(--primary); }
+.txn-amt.debit{ color:var(--red); }
+.txn-actions{ display:flex; gap:4px; }
+.txn-actions button{
+  padding:3px 8px; border-radius:20px; border:1.5px solid var(--line);
+  background:var(--surface); color:var(--ink2); font-size:10.5px;
+  cursor:pointer; font-family:'Hind';
+}
+.txn-actions button.del{ border-color:#D63B2F30; color:var(--red); background:var(--red-l); }
+
+/* ── INSIGHTS ── */
+.pill-row{ display:flex; gap:7px; margin-bottom:14px; width:100%; }
+.pill{
+  flex:1; padding:8px 10px; border-radius:20px;
+  border:1.5px solid var(--line); background:var(--surface);
+  color:var(--ink2); font-size:12.5px; font-weight:700;
+  cursor:pointer; font-family:'Hind'; text-align:center;
+}
+.pill.active{ background:var(--primary); border-color:var(--primary); color:#fff; }
+.stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; width:100%; }
+.stat-tile{
+  background:var(--surface); border-radius:var(--r-sm);
+  box-shadow:var(--shadow1); padding:13px 14px; min-width:0;
+}
+.st-label{ font-size:11px; color:var(--ink2); font-weight:700; margin-bottom:3px; }
+.st-val{ font-family:'Nunito'; font-weight:900; font-size:19px; color:var(--ink); }
+#insightsCanvas{ width:100%; height:120px; display:block; }
+.chart-legend{ display:flex; justify-content:space-between; font-size:10px; color:var(--ink3); margin-top:3px; }
+.chart-title{ font-family:'Nunito'; font-size:13px; font-weight:800; color:var(--ink2); margin-bottom:9px; }
+
+/* ── SETTINGS ── */
+.settings-group{ background:var(--surface); border-radius:var(--r); box-shadow:var(--shadow1); padding:16px; margin-bottom:12px; width:100%; }
+.settings-group-title{
+  font-family:'Nunito'; font-size:11px; font-weight:900; color:var(--primary);
+  letter-spacing:.6px; text-transform:uppercase; margin-bottom:14px;
+}
+.s-row{ margin-bottom:14px; }
+.s-row:last-child{ margin-bottom:0; }
+.s-row label{ display:block; font-size:13px; font-weight:700; color:var(--ink); margin-bottom:6px; }
+.s-row .hint{ font-size:11.5px; color:var(--ink2); margin-top:5px; line-height:1.55; }
+.s-row input[type="number"],.s-row input[type="text"]{
+  width:100%; padding:11px 13px; border-radius:var(--r-xs);
+  border:1.5px solid var(--line); font-size:14.5px; font-family:'Hind';
+  background:var(--surface2); color:var(--ink); min-width:0;
+}
+.s-row input:focus{ outline:none; border-color:var(--primary); }
+.type-row{ display:flex; gap:8px; width:100%; }
+.type-btn{
+  flex:1; padding:11px 6px; border-radius:var(--r-xs);
+  border:2px solid var(--line); background:var(--surface);
+  color:var(--ink2); font-size:12.5px; font-weight:700;
+  cursor:pointer; font-family:'Hind'; text-align:center; transition:.15s;
+}
+.type-btn.active{ background:var(--primary-l); border-color:var(--primary); color:var(--primary); }
+.cycle-chip{
+  background:var(--primary-l); border-radius:var(--r-xs); padding:9px 11px;
+  font-size:12.5px; color:var(--primary); font-weight:700; margin-bottom:11px;
+}
+.danger-group{
+  background:var(--surface); border-radius:var(--r);
+  border:1.5px solid #D63B2F25; box-shadow:var(--shadow1);
+  padding:16px; margin-bottom:12px; width:100%;
+}
+.danger-title{ font-size:11px; font-weight:900; color:var(--red); letter-spacing:.5px; text-transform:uppercase; margin-bottom:10px; }
+.danger-hint{ font-size:12px; color:var(--ink2); margin-bottom:12px; line-height:1.5; }
+.about-card{ text-align:center; padding:20px 16px; }
+.about-icon{
+  width:48px; height:48px; border-radius:14px; margin:0 auto 9px;
+  background:linear-gradient(135deg,var(--primary-d),var(--primary-m));
+  display:flex; align-items:center; justify-content:center;
+}
+.about-name{ font-family:'Nunito'; font-size:14px; font-weight:800; color:var(--primary); }
+.about-sub{ font-size:11.5px; color:var(--ink2); margin-top:2px; }
+
+/* ── OVERLAY / SHEET MODAL ── */
+.overlay{
+  position:fixed; inset:0; background:rgba(0,15,8,.52);
+  display:none; align-items:flex-end; justify-content:center;
+  z-index:200; backdrop-filter:blur(3px);
+}
+.overlay.show{ display:flex; }
+.sheet{
+  background:var(--surface); width:100%; max-width:480px;
+  border-radius:22px 22px 0 0;
+  padding:18px 16px calc(18px + var(--safe-b));
+  max-height:90vh; overflow-y:auto; overflow-x:hidden;
+  animation:slideUp .2s ease;
+}
+.sheet::-webkit-scrollbar{ display:none; }
+@keyframes slideUp{ from{transform:translateY(24px);opacity:0} to{transform:translateY(0);opacity:1} }
+.sheet-handle{
+  width:32px; height:4px; background:var(--line); border-radius:4px;
+  margin:0 auto 13px;
+}
+.sheet-title{ font-family:'Nunito'; font-size:16px; font-weight:800; margin-bottom:14px; }
+.sheet-field{ margin-bottom:13px; }
+.sheet-field label{ display:block; font-size:12px; font-weight:700; color:var(--ink2); margin-bottom:6px; }
+.sheet-field input{
+  width:100%; padding:11px 13px; border-radius:var(--r-xs);
+  border:1.5px solid var(--line); font-size:14.5px;
+  font-family:'Hind'; background:var(--surface2); color:var(--ink); min-width:0;
+}
+.sheet-field input:focus{ outline:none; border-color:var(--primary); }
+.txn-type-row{ display:flex; gap:8px; margin-bottom:13px; width:100%; }
+.txn-type-btn{
+  flex:1; padding:12px 6px; border-radius:var(--r-sm);
+  border:2px solid var(--line); background:var(--surface);
+  color:var(--ink2); font-size:12.5px; font-weight:800;
+  cursor:pointer; font-family:'Nunito'; text-align:center; transition:.15s;
+}
+.txn-type-btn.credit.active{ background:var(--primary-l); border-color:var(--primary); color:var(--primary); }
+.txn-type-btn.debit.active{ background:var(--red-l); border-color:#D63B2F50; color:var(--red); }
+
+/* ── TOAST ── */
+.toast{
+  position:fixed; bottom:calc(var(--nb-h) + var(--safe-b) + 10px);
+  left:50%; transform:translateX(-50%) translateY(10px);
+  background:var(--ink); color:#fff; padding:10px 18px; border-radius:30px;
+  font-size:13px; font-weight:700; box-shadow:var(--shadow3); z-index:300;
+  opacity:0; transition:.2s ease; pointer-events:none;
+  max-width:88%; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── EMPTY STATE ── */
+.empty{ text-align:center; padding:36px 16px; }
+.empty .em{ font-size:40px; margin-bottom:10px; }
+.empty p{ font-size:13.5px; color:var(--ink2); line-height:1.65; }
+
+/* ── MISC ── */
+.divider{ height:1px; background:var(--line); margin:10px 0; }
+.conf{ position:fixed; top:-10px; width:9px; height:9px; z-index:400; pointer-events:none; animation:confFall 2.2s ease-in forwards; }
+@keyframes confFall{ to{transform:translateY(110vh) rotate(540deg); opacity:.1;} }
+.inline-action{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 13px; border-radius:var(--r-xs);
+  border:1.5px solid var(--line); background:var(--surface);
+  color:var(--ink2); font-size:12.5px; font-weight:700;
+  cursor:pointer; font-family:'Hind';
+}
+.inline-action:active{ transform:scale(.95); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon" style="font-size:20px;">🥛</div>
+      <div class="brand-text">
+        <h1>दूध हिसाब</h1>
+        <p id="customerLabel">डेयरी बहीखाता</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" id="themeToggle" style="font-size:18px;">
+        <span id="themeIcon">☀️</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SCREENS -->
+  <div class="screens">
+    <div id="screen-home" class="screen active"></div>
+    <div id="screen-history" class="screen"></div>
+    <div id="screen-insights" class="screen"></div>
+    <div id="screen-settings" class="screen"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="home">
+      <span class="nv-ic">🏠</span>
+      होम
+    </button>
+    <button class="nav-btn" data-tab="history">
+      <span class="nv-ic">📒</span>
+      हिसाब
+    </button>
+    <button class="nav-btn" data-tab="insights">
+      <span class="nv-ic">📊</span>
+      जानकारी
+    </button>
+    <button class="nav-btn" data-tab="settings">
+      <span class="nv-ic">⚙️</span>
+      सेटिंग
+    </button>
+  </nav>
+</div>
+
+<!-- MODALS -->
+<div class="overlay" id="editModal">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="editModalTitle">एंट्री बदलें</div>
+    <div id="editModalBody"></div>
+  </div>
+</div>
+
+<div class="overlay" id="txnModal">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="txnModalTitle">लेन-देन जोड़ें</div>
+    <div id="txnModalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+'use strict';
+const STORAGE_KEY = 'doodhHisabDataV2';
+const THEME_KEY   = 'doodhHisabTheme';
+
+// ─── DATE UTILS ───
+function todayStr(){ return dateToStr(new Date()); }
+function dateToStr(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function strToDate(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function addDays(s,n){ const d=strToDate(s); d.setDate(d.getDate()+n); return dateToStr(d); }
+function daysBetween(a,b){ return Math.round((strToDate(b)-strToDate(a))/86400000); }
+function daysInMonth(y,m){ return new Date(y,m,0).getDate(); }
+function round2(n){ return Math.round((n+Number.EPSILON)*100)/100; }
+function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+function formatDisplay(s){
+  return strToDate(s).toLocaleDateString('hi-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+}
+function formatShort(s){
+  return strToDate(s).toLocaleDateString('hi-IN',{day:'numeric',month:'short'});
+}
+
+// ─── CALENDAR PERIOD LOGIC ───
+function getCalendarPeriods(year, month1, N){
+  const dim = daysInMonth(year, month1);
+  const periods = [];
+  let start = 1;
+  while(start <= dim){
+    const regularEnd = start + N - 1;
+    if(regularEnd >= dim){ periods.push([start, dim]); break; }
+    const remaining = dim - regularEnd;
+    if(remaining > 0 && remaining < N){ periods.push([start, dim]); break; }
+    periods.push([start, regularEnd]);
+    start = regularEnd + 1;
+  }
+  return periods;
+}
+
+function computeCycleEnd(startDateStr){
+  const N = Math.max(1, parseInt(state.settings.contractDays)||15);
+  if(state.settings.cycleType === 'calendar'){
+    const d = strToDate(startDateStr);
+    const y = d.getFullYear(), m = d.getMonth()+1, dom = d.getDate();
+    const periods = getCalendarPeriods(y, m, N);
+    const period = periods.find(p => dom >= p[0] && dom <= p[1]) || periods[periods.length-1];
+    return dateToStr(new Date(y, m-1, period[1]));
+  }
+  return addDays(startDateStr, N-1);
+}
+
+function getCalendarBounds(dateStr, N){
+  const d = strToDate(dateStr);
+  const y = d.getFullYear(), m = d.getMonth()+1, dom = d.getDate();
+  const periods = getCalendarPeriods(y, m, N);
+  const p = periods.find(pr => dom >= pr[0] && dom <= pr[1]) || periods[periods.length-1];
+  return { start: dateToStr(new Date(y, m-1, p[0])), end: dateToStr(new Date(y, m-1, p[1])) };
+}
+
+function computeBounds(refStr){
+  const N = Math.max(1, parseInt(state.settings.contractDays)||15);
+  if(state.settings.cycleType === 'calendar') return getCalendarBounds(refStr, N);
+  return { start: refStr, end: addDays(refStr, N-1) };
+}
+
+function alignCycleBounds(cyc, force){
+  const hasData = Object.keys(cyc.entries||{}).length > 0 || (cyc.transactions||[]).length > 0;
+  if(state.settings.cycleType === 'calendar'){
+    const shouldAlign = force ? !hasData : (!hasData && (!cyc.endDate || todayStr() <= cyc.endDate));
+    if(shouldAlign){
+      const bounds = computeBounds(todayStr());
+      cyc.startDate = bounds.start;
+      cyc.endDate   = bounds.end;
+      return;
+    }
+  }
+  if(!cyc.endDate) cyc.endDate = computeCycleEnd(cyc.startDate);
+}
+
+// ─── STATE ───
+let state = null;
+
+function defaultState(){
+  return {
+    settings:{ ratePerFatPoint:0, cycleType:'calendar', contractDays:15, customerName:'' },
+    cycles:[{ cycleNumber:1, startDate:todayStr(), endDate:null, entries:{}, transactions:[] }]
+  };
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw){
+      state = defaultState();
+      alignCycleBounds(state.cycles[0], false);
+      state.cycles[0].endDate = state.cycles[0].endDate || computeCycleEnd(state.cycles[0].startDate);
+      saveState(); return;
+    }
+    state = JSON.parse(raw);
+    if(!state.settings) state.settings = defaultState().settings;
+    if(state.settings.cycleType === undefined) state.settings.cycleType = 'calendar';
+    if(state.settings.contractDays === undefined || state.settings.contractDays === 10) state.settings.contractDays = 15;
+    if(!state.cycles||!state.cycles.length){
+      state.cycles = [{ cycleNumber:1, startDate:todayStr(), endDate:null, entries:{}, transactions:[] }];
+    }
+    state.cycles.forEach(c=>{
+      if(!c.transactions) c.transactions = [];
+      if(!c.endDate) c.endDate = computeCycleEnd(c.startDate);
+    });
+    alignCycleBounds(currentCycle(), false);
+  }catch(e){
+    console.error('State load error', e);
+    state = defaultState();
+    alignCycleBounds(state.cycles[0], false);
+    saveState();
+  }
+}
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }
+  catch(e){ showToast('⚠️ सेव नहीं हो पाया — स्टोरेज भरा हो सकता है'); }
+}
+
+function currentCycle(){ return state.cycles[state.cycles.length-1]; }
+
+function rollCyclesIfNeeded(){
+  let changed = false;
+  let cyc = currentCycle();
+  if(!cyc.endDate){ cyc.endDate = computeCycleEnd(cyc.startDate); changed = true; }
+  let guard = 0;
+  while(todayStr() > cyc.endDate && guard < 1000){
+    const newStart = addDays(cyc.endDate, 1);
+    let finalStart = newStart, finalEnd;
+    if(state.settings.cycleType === 'calendar'){
+      const bounds = computeBounds(newStart);
+      finalStart = bounds.start; finalEnd = bounds.end;
+    } else {
+      finalEnd = computeCycleEnd(finalStart);
+    }
+    state.cycles.push({ cycleNumber:cyc.cycleNumber+1, startDate:finalStart, endDate:finalEnd, entries:{}, transactions:[] });
+    cyc = currentCycle(); changed = true; guard++;
+  }
+  if(changed) saveState();
+  return changed;
+}
+
+function cycleDayInfo(cyc){
+  const totalDays = daysBetween(cyc.startDate, cyc.endDate)+1;
+  const rawIndex  = daysBetween(cyc.startDate, todayStr())+1;
+  const dayIndex  = Math.min(totalDays, Math.max(1, rawIndex));
+  const daysRemaining = Math.max(0, totalDays-dayIndex);
+  return { dayIndex, totalDays, daysRemaining };
+}
+
+function milkTotal(cyc){
+  let t=0;
+  for(const d in cyc.entries){ const e=cyc.entries[d]; t+=(e.morning?.amount||0)+(e.evening?.amount||0); }
+  return round2(t);
+}
+function txnNet(cyc){
+  let n=0;
+  (cyc.transactions||[]).forEach(t=>{ n+=t.type==='credit'?t.amount:-t.amount; });
+  return round2(n);
+}
+function cycleNet(cyc){ return round2(milkTotal(cyc)+txnNet(cyc)); }
+function grandNet(){ return round2(state.cycles.reduce((s,c)=>s+cycleNet(c),0)); }
+
+function findCycle(dateStr){
+  for(let i=state.cycles.length-1;i>=0;i--){
+    const c=state.cycles[i];
+    if(dateStr>=c.startDate&&dateStr<=c.endDate) return c;
+  }
+  return currentCycle();
+}
+function findCycleIdx(dateStr){
+  for(let i=state.cycles.length-1;i>=0;i--){
+    const c=state.cycles[i];
+    if(dateStr>=c.startDate&&dateStr<=c.endDate) return i;
+  }
+  return state.cycles.length-1;
+}
+
+function startNewCycle(){
+  const cyc=currentCycle();
+  if(Object.keys(cyc.entries).length===0&&(cyc.transactions||[]).length===0&&state.cycles.length>1){
+    showToast('मौजूदा चक्र पहले से खाली है।'); return;
+  }
+  const ns=todayStr();
+  let fs=ns,fe;
+  if(state.settings.cycleType==='calendar'){
+    const b=computeBounds(ns); fs=b.start; fe=b.end;
+  } else { fe=computeCycleEnd(fs); }
+  state.cycles.push({cycleNumber:cyc.cycleNumber+1,startDate:fs,endDate:fe,entries:{},transactions:[]});
+  saveState(); haptic([20,40,20]); fireConfetti();
+  showToast('🔄 नया चक्र शुरू हुआ'); renderTab();
+}
+
+function emptySlot(){ return {absent:false,qty:null,fat:null,rate:state.settings.ratePerFatPoint,amount:0,note:''}; }
+function computeAmount(slot){
+  if(slot.absent) return 0;
+  const q=parseFloat(slot.qty),f=parseFloat(slot.fat),r=parseFloat(slot.rate);
+  if(isNaN(q)||isNaN(f)||isNaN(r)) return 0;
+  return round2(q*f*r);
+}
+function getOrCreate(cyc,dateStr){
+  if(!cyc.entries[dateStr]) cyc.entries[dateStr]={morning:emptySlot(),evening:emptySlot()};
+  return cyc.entries[dateStr];
+}
+
+// ─── UI UTILS ───
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+function haptic(ms=12){ if(navigator.vibrate){ try{navigator.vibrate(ms);}catch(e){} } }
+function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+function fireConfetti(){
+  const colors=['#1B7A4A','#F0A500','#3DBF7A','#D63B2F','#F0C040'];
+  for(let i=0;i<28;i++){
+    const p=document.createElement('div'); p.className='conf';
+    p.style.left=Math.random()*100+'vw';
+    p.style.background=colors[i%colors.length];
+    p.style.animationDuration=(1.5+Math.random()*1.2)+'s';
+    p.style.borderRadius=Math.random()>.5?'50%':'3px';
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),3000);
+  }
+}
+
+function currentStreak(){
+  let streak=0,d=todayStr();
+  while(true){
+    const cyc=findCycle(d);
+    const e=cyc.entries[d];
+    const has=e&&((e.morning&&!e.morning.absent&&e.morning.qty)||(e.evening&&!e.evening.absent&&e.evening.qty));
+    if(!has) break;
+    streak++; d=addDays(d,-1);
+  }
+  return streak;
+}
+
+// ─── THEME ───
+function loadTheme(){
+  const saved=localStorage.getItem(THEME_KEY);
+  const theme=saved||(window.matchMedia?.('(prefers-color-scheme:dark)').matches?'dark':'light');
+  applyTheme(theme,false);
+}
+function applyTheme(theme,save=true){
+  document.documentElement.setAttribute('data-theme',theme);
+  if(save) localStorage.setItem(THEME_KEY,theme);
+  const ic=document.getElementById('themeIcon');
+  if(ic) ic.textContent=theme==='dark'?'🌙':'☀️';
+}
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme')||'light';
+  applyTheme(cur==='dark'?'light':'dark'); haptic(8);
+}
+document.getElementById('themeToggle').addEventListener('click',toggleTheme);
+
+// ─── HOME ───
+let homeDate=todayStr();
+let homeDraft=null;
+let notesOpen={morning:false,evening:false};
+
+function initDraft(){
+  rollCyclesIfNeeded();
+  const cyc=findCycle(homeDate);
+  const ex=cyc.entries[homeDate];
+  homeDraft=ex?JSON.parse(JSON.stringify(ex)):{morning:emptySlot(),evening:emptySlot()};
+  notesOpen={morning:false,evening:false};
+}
+
+function getMissed(){
+  const cyc=currentCycle(); const missed=[]; let d=cyc.startDate;
+  const yesterday=addDays(todayStr(),-1);
+  while(d<=yesterday){
+    const e=cyc.entries[d];
+    const ok=e&&(e.morning.absent||e.evening.absent||(e.morning.qty!=null&&e.morning.qty!=='')||(e.evening.qty!=null&&e.evening.qty!==''));
+    if(!ok) missed.push(d);
+    d=addDays(d,1);
+  }
+  return missed;
+}
+
+function renderHome(){
+  if(!homeDraft) initDraft();
+  const cyc=currentCycle();
+  const info=cycleDayInfo(cyc);
+  const total=cycleNet(cyc);
+  const pct=info.totalDays?(info.dayIndex/info.totalDays):0;
+  const C=2*Math.PI*29;
+  const offset=C*(1-pct);
+  const isNeg=total<0;
+  const rateSet=state.settings.ratePerFatPoint>0;
+  const isToday=homeDate===todayStr();
+  const missed=getMissed();
+  const streak=currentStreak();
+
+  let html='';
+
+  // HERO CARD
+  html+=`
+  <div class="hero-card">
+    <div class="hero-row">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 66 66">
+          <circle class="ring-bg" cx="33" cy="33" r="29" fill="none" stroke-width="5.5"></circle>
+          <circle class="ring-fg" cx="33" cy="33" r="29" fill="none" stroke-width="5.5"
+            stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"></circle>
+        </svg>
+        <div class="ring-label">
+          <div class="rn">${info.dayIndex}</div>
+          <div class="rd">/ ${info.totalDays}</div>
+        </div>
+      </div>
+      <div class="hero-info">
+        <div class="hero-lbl">चक्र ${cyc.cycleNumber}</div>
+        <div class="hero-amt ${isNeg?'neg':''}">${isNeg?'−':''}₹${Math.abs(total).toFixed(2)}</div>
+        <div class="hero-sub">${isNeg?'देने हैं':'मिलने हैं'} · <b>${info.daysRemaining}</b> दिन बचे</div>
+        <div class="hero-dates">${formatShort(cyc.startDate)} – ${formatShort(cyc.endDate)}</div>
+        ${streak>1?`<div class="streak-pill">🔥 ${streak} दिन लगातार</div>`:''}
+      </div>
+    </div>
+  </div>`;
+
+  if(!rateSet){
+    html+=`<div class="notice-card">
+      <div class="nt">👋 पहले भाव (रेट) सेट करें</div>
+      <div class="nb">सेटिंग में जाकर फैट के हिसाब से ₹ भाव डालें, तभी सही अमाउंट कैलकुलेट होगा।</div>
+    </div>`;
+  }
+
+  if(missed.length>0){
+    html+=`<div class="missed-card">
+      <div class="missed-head">
+        <span style="font-size:22px;">⏰</span>
+        <div>
+          <div class="missed-title">${missed.length} दिन की एंट्री बाकी</div>
+          <div class="missed-sub">टैप करके उस दिन की एंट्री भरें</div>
+        </div>
+      </div>
+      <div class="chip-row">
+        ${missed.slice(-8).map(d=>`<button class="chip" data-action="go-date" data-date="${d}">${formatShort(d)}</button>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  html+=`<div class="date-row">
+    <input type="date" id="homeDateInput" value="${homeDate}" max="${todayStr()}">
+    ${!isToday?`<button class="today-btn" id="backToday">आज</button>`:''}
+  </div>
+  ${!isToday?`<div class="date-banner">✏️ ${formatDisplay(homeDate)} की एंट्री भर/बदल रहे हैं</div>`:''}`;
+
+  html+=renderSlot('morning','सुबह');
+  html+=renderSlot('evening','शाम');
+
+  html+=`<div style="margin-bottom:10px;">
+    <button class="btn btn-primary" id="saveEntryBtn">${isToday?'आज की एंट्री सेव करें':'यह एंट्री सेव करें'}</button>
+  </div>`;
+
+  html+=`<button class="btn btn-ghost" id="openTxnBtn" style="margin-bottom:14px;">+ लेन-देन जोड़ें (उधार / जमा)</button>`;
+
+  html+=`<div class="sec-title">पिछले दिन</div><div id="recentList"></div>`;
+  html+=`<div class="footer-note">Developed by Narpat Prihar · @narpatprihar</div>`;
+
+  document.getElementById('screen-home').innerHTML=html;
+  attachHomeListeners();
+  renderRecent();
+}
+
+const SLOT_ICONS={
+  morning:`<span style="font-size:18px;line-height:1;">☀️</span>`,
+  evening:`<span style="font-size:17px;line-height:1;">🌙</span>`
+};
+
+function renderSlot(k,label){
+  const slot=homeDraft[k];
+  const absent=!!slot.absent;
+  const amt=computeAmount(slot);
+  const noteOpen=notesOpen[k]||!!slot.note;
+  return `
+  <div class="slot-card slot-${k} ${absent?'absent':''}" data-slot="${k}">
+    <div class="slot-accent"></div>
+    <div class="slot-head">
+      <div class="slot-title">
+        <div class="slot-icon">${SLOT_ICONS[k]}</div>
+        <h3>${label}</h3>
+      </div>
+      <button class="absent-btn ${absent?'on':''}" data-action="toggle-absent" data-slot="${k}">
+        ${absent?'✕ गैरहाज़िर':'गैरहाज़िर'}
+      </button>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>मात्रा (लीटर)</label>
+        <div class="stepper">
+          <button type="button" class="step-btn" data-step="-0.25" data-field="qty" data-slot="${k}" ${absent?'disabled':''}>−</button>
+          <input type="number" step="0.01" min="0" inputmode="decimal" placeholder="0.0" data-field="qty" data-slot="${k}" value="${slot.qty??''}" ${absent?'disabled':''}>
+          <button type="button" class="step-btn" data-step="0.25" data-field="qty" data-slot="${k}" ${absent?'disabled':''}>+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>फैट %</label>
+        <div class="stepper">
+          <button type="button" class="step-btn" data-step="-0.1" data-field="fat" data-slot="${k}" ${absent?'disabled':''}>−</button>
+          <input type="number" step="0.1" min="0" inputmode="decimal" placeholder="0.0" data-field="fat" data-slot="${k}" value="${slot.fat??''}" ${absent?'disabled':''}>
+          <button type="button" class="step-btn" data-step="0.1" data-field="fat" data-slot="${k}" ${absent?'disabled':''}>+</button>
+        </div>
+      </div>
+    </div>
+    ${noteOpen?`
+    <div class="note-wrap">
+      <label>टिप्पणी</label>
+      <textarea rows="2" placeholder="नोट..." data-field="note" data-slot="${k}">${escapeHtml(slot.note||'')}</textarea>
+    </div>`:`
+    <button type="button" class="note-link" data-action="open-note" data-slot="${k}">+ टिप्पणी जोड़ें</button>
+    `}
+    <div class="amount-row">
+      <span class="albl">${absent?'गैरहाज़िर — ₹0':'अमाउंट'}</span>
+      <span class="aval">₹${amt.toFixed(2)}</span>
+    </div>
+  </div>`;
+}
+
+function attachHomeListeners(){
+  document.getElementById('saveEntryBtn')?.addEventListener('click',saveHome);
+  document.getElementById('openTxnBtn')?.addEventListener('click',()=>openTxn());
+  document.getElementById('homeDateInput')?.addEventListener('change',e=>{ homeDate=e.target.value||todayStr(); initDraft(); renderHome(); });
+  document.getElementById('backToday')?.addEventListener('click',()=>{ homeDate=todayStr(); initDraft(); renderHome(); });
+
+  document.querySelectorAll('[data-action="go-date"]').forEach(b=>b.addEventListener('click',()=>{
+    homeDate=b.dataset.date; initDraft(); haptic(10); renderHome();
+    showToast(`✏️ ${formatDisplay(homeDate)} की एंट्री भरें`);
+  }));
+  document.querySelectorAll('[data-action="open-note"]').forEach(b=>b.addEventListener('click',()=>{ notesOpen[b.dataset.slot]=true; renderHome(); }));
+  document.querySelectorAll('[data-action="toggle-absent"]').forEach(b=>b.addEventListener('click',()=>{
+    homeDraft[b.dataset.slot].absent=!homeDraft[b.dataset.slot].absent; haptic(10); renderHome();
+  }));
+  document.querySelectorAll('.slot-card .step-btn[data-step]').forEach(b=>b.addEventListener('click',()=>{
+    const s=b.dataset.slot,f=b.dataset.field,delta=parseFloat(b.dataset.step);
+    const cur=parseFloat(homeDraft[s][f])||0;
+    homeDraft[s][f]=round2(Math.max(0,cur+delta));
+    homeDraft[s].rate=state.settings.ratePerFatPoint;
+    haptic(8); renderHome();
+  }));
+  document.querySelectorAll('input[data-field],textarea[data-field]').forEach(inp=>inp.addEventListener('input',()=>{
+    const s=inp.dataset.slot,f=inp.dataset.field;
+    if(f==='note'){ homeDraft[s].note=inp.value; return; }
+    let v=inp.value;
+    if(v!==''&&parseFloat(v)<0) v='0';
+    homeDraft[s][f]=v===''?null:parseFloat(v);
+    homeDraft[s].rate=state.settings.ratePerFatPoint;
+    const card=document.querySelector(`.slot-card[data-slot="${s}"]`);
+    if(card) card.querySelector('.aval').textContent=`₹${computeAmount(homeDraft[s]).toFixed(2)}`;
+    if(f==='fat'&&v!==''&&(parseFloat(v)>15||parseFloat(v)<0)) showToast('⚠️ असामान्य फैट % — जांचें');
+  }));
+}
+
+function saveHome(){
+  rollCyclesIfNeeded();
+  const cyc=findCycle(homeDate);
+  ['morning','evening'].forEach(k=>{
+    homeDraft[k].amount=computeAmount(homeDraft[k]);
+    homeDraft[k].rate=state.settings.ratePerFatPoint;
+  });
+  cyc.entries[homeDate]=JSON.parse(JSON.stringify(homeDraft));
+  saveState(); haptic(18); showToast('✅ एंट्री सेव हो गई'); renderHome();
+}
+
+function renderRecent(){
+  const container=document.getElementById('recentList');
+  if(!container) return;
+  let all=[];
+  state.cycles.forEach(c=>Object.keys(c.entries).forEach(d=>all.push({d,e:c.entries[d]})));
+  all.sort((a,b)=>b.d.localeCompare(a.d)); all=all.slice(0,7);
+  if(!all.length){
+    container.innerHTML=`<div class="empty"><div class="em">🥛</div><p>अभी कोई एंट्री नहीं है।<br>ऊपर से पहली एंट्री जोड़ें।</p></div>`;
+    return;
+  }
+  container.innerHTML=all.map(({d,e})=>{
+    const m=e.morning||{},ev=e.evening||{};
+    const dt=round2((m.amount||0)+(ev.amount||0));
+    const mB=m.absent?`<span class="badge badge-absent">सुबह</span>`:'';
+    const eB=ev.absent?`<span class="badge badge-absent">शाम</span>`:'';
+    const nB=(m.note||ev.note)?`<span class="badge badge-note">📝</span>`:'';
+    return `<div class="day-item" data-date="${d}">
+      <div class="day-item-left">
+        <div class="day-date">${formatShort(d)}</div>
+        <div class="day-sub">सुबह: ${m.absent?'—':'₹'+(m.amount||0).toFixed(2)} · शाम: ${ev.absent?'—':'₹'+(ev.amount||0).toFixed(2)} ${mB}${eB}${nB}</div>
+      </div>
+      <div class="day-amount">₹${dt.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+  container.querySelectorAll('.day-item').forEach(it=>it.addEventListener('click',()=>{
+    homeDate=it.dataset.date; initDraft(); renderHome();
+    document.getElementById('screen-home').scrollTop=0;
+  }));
+}
+
+// ─── TXN MODAL ───
+let txnDraft=null;
+function openTxn(existing=null,cycIdx=null){
+  txnDraft=existing
+    ?{...existing,_ci:cycIdx}
+    :{id:genId(),date:homeDate,type:'debit',label:'',amount:null,_ci:null};
+  document.getElementById('txnModalTitle').textContent=existing?'✏️ लेन-देन बदलें':'+ लेन-देन जोड़ें';
+  renderTxnBody(); document.getElementById('txnModal').classList.add('show');
+}
+function closeTxn(){ document.getElementById('txnModal').classList.remove('show'); txnDraft=null; }
+function renderTxnBody(){
+  const isEdit=txnDraft._ci!==null&&txnDraft._ci!==undefined;
+  document.getElementById('txnModalBody').innerHTML=`
+    <div class="sheet-field"><label>तारीख</label><input type="date" id="txnDate" value="${txnDraft.date}" max="${todayStr()}"></div>
+    <div class="txn-type-row">
+      <button type="button" class="txn-type-btn credit ${txnDraft.type==='credit'?'active':''}" data-type="credit">
+        💰 जमा<br><span style="font-size:10.5px;font-weight:500;">मुझे मिलने हैं</span>
+      </button>
+      <button type="button" class="txn-type-btn debit ${txnDraft.type==='debit'?'active':''}" data-type="debit">
+        🛒 उधार<br><span style="font-size:10.5px;font-weight:500;">मैंने लिया/खरीदा</span>
+      </button>
+    </div>
+    <div class="sheet-field"><label>विवरण / नाम</label><input type="text" id="txnLabel" placeholder="जैसे: राशन, नकद..." value="${escapeHtml(txnDraft.label||'')}"></div>
+    <div class="sheet-field"><label>राशि (₹)</label><input type="number" min="0" step="0.01" inputmode="decimal" id="txnAmount" placeholder="जैसे 255" value="${txnDraft.amount??''}"></div>
+    <div class="btn-row">
+      <button class="btn btn-outline" id="txnCancelBtn">रद्द</button>
+      ${isEdit?`<button class="btn btn-danger btn-sm" id="txnDeleteBtn">हटाएं</button>`:''}
+      <button class="btn btn-primary" id="txnSaveBtn">सेव करें</button>
+    </div>`;
+  document.querySelectorAll('.txn-type-btn').forEach(b=>b.addEventListener('click',()=>{ txnDraft.type=b.dataset.type; renderTxnBody(); }));
+  document.getElementById('txnCancelBtn').addEventListener('click',closeTxn);
+  document.getElementById('txnSaveBtn').addEventListener('click',saveTxn);
+  const del=document.getElementById('txnDeleteBtn');
+  if(del) del.addEventListener('click',()=>{
+    if(!confirm('इस लेन-देन को हटाएं?')) return;
+    state.cycles[txnDraft._ci].transactions=state.cycles[txnDraft._ci].transactions.filter(t=>t.id!==txnDraft.id);
+    saveState(); closeTxn(); showToast('🗑 हटाया गया'); renderTab();
+  });
+}
+function saveTxn(){
+  const date=document.getElementById('txnDate').value||homeDate;
+  const label=document.getElementById('txnLabel').value.trim()||(txnDraft.type==='credit'?'जमा':'उधार/खरीदी');
+  const amount=parseFloat(document.getElementById('txnAmount').value);
+  if(isNaN(amount)||amount<=0){ showToast('⚠️ सही राशि डालें'); return; }
+  state.cycles.forEach(c=>{ c.transactions=(c.transactions||[]).filter(t=>t.id!==txnDraft.id); });
+  findCycle(date).transactions.push({id:txnDraft.id,date,type:txnDraft.type,label,amount:round2(amount)});
+  saveState(); haptic(15); closeTxn(); showToast('✅ लेन-देन सेव हो गया'); renderTab();
+}
+
+// ─── HISTORY ───
+let openCycIdx=null;
+function renderHistory(){
+  const cycles=state.cycles.slice().reverse();
+  const grand=grandNet();
+  const grandNeg=grand<0;
+  let html=`
+  <div class="grand-card ${grandNeg?'neg':''}">
+    <div class="gc-label">कुल हिसाब (अब तक)</div>
+    <div class="gc-amount">${grandNeg?'−':''}₹${Math.abs(grand).toFixed(2)}</div>
+    <div class="gc-note">${grandNeg?'डेयरी को देने हैं':'डेयरी से मिलने हैं'}</div>
+  </div>
+  <div style="margin-bottom:12px;">
+    <button class="export-btn" id="exportAllBtn">
+      📥 पूरा इतिहास PDF
+    </button>
+  </div>`;
+
+  const hasAny=state.cycles.some(c=>Object.keys(c.entries).length>0||(c.transactions||[]).length>0);
+  if(!hasAny){
+    html+=`<div class="empty"><div class="em">📒</div><p>अभी कोई हिसाब नहीं है।<br>होम टैब से एंट्री जोड़ें।</p></div>`;
+  } else {
+    cycles.forEach(cyc=>{
+      const ri=state.cycles.indexOf(cyc);
+      const total=cycleNet(cyc);
+      const isActive=cyc===currentCycle();
+      const dates=Object.keys(cyc.entries).sort((a,b)=>b.localeCompare(a));
+      const txns=(cyc.transactions||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+      const isOpen=openCycIdx===ri;
+      html+=`
+      <div class="cycle-block ${isOpen?'open':''}" data-ci="${ri}">
+        <div class="cycle-block-head" data-action="toggle-cyc" data-ci="${ri}">
+          <div class="cbh-l">
+            <div class="cbh-title">चक्र ${cyc.cycleNumber} <span style="font-weight:500;font-size:11.5px;color:var(--ink2)">${isActive?'· चालू':'· पूरा'}</span></div>
+            <div class="cbh-sub">${formatShort(cyc.startDate)} – ${formatShort(cyc.endDate)} · ${dates.length} दिन दर्ज</div>
+          </div>
+          <div class="cbh-r">
+            <div class="cbh-total ${total<0?'neg':''}">${total<0?'−':''}₹${Math.abs(total).toFixed(2)}</div>
+            <span class="cbh-chev">▾</span>
+          </div>
+        </div>
+        <div class="cycle-body">
+          ${dates.length===0?'<p style="padding:10px 0;font-size:12.5px;color:var(--ink2)">इस चक्र में कोई दूध एंट्री नहीं।</p>':dates.map(date=>{
+            const e=cyc.entries[date],m=e.morning||{},ev=e.evening||{};
+            const dt=round2((m.amount||0)+(ev.amount||0));
+            return `<div class="day-row">
+              <div class="dr-top"><span>${formatDisplay(date)}</span><span style="font-family:'Nunito';font-weight:900;color:var(--primary)">₹${dt.toFixed(2)}</span></div>
+              <div class="dr-detail">
+                सुबह: ${m.absent?'गैरहाज़िर':`${m.qty??0}ली × ${m.fat??0}% × ₹${m.rate??0} = ₹${(m.amount||0).toFixed(2)}`}${m.note?` 📝 ${escapeHtml(m.note)}`:''}<br>
+                शाम: ${ev.absent?'गैरहाज़िर':`${ev.qty??0}ली × ${ev.fat??0}% × ₹${ev.rate??0} = ₹${(ev.amount||0).toFixed(2)}`}${ev.note?` 📝 ${escapeHtml(ev.note)}`:''}
+              </div>
+              <div class="dr-actions">
+                <button data-action="edit-day" data-ci="${ri}" data-date="${date}">✏️ बदलें</button>
+                <button class="del" data-action="del-day" data-ci="${ri}" data-date="${date}">🗑 हटाएं</button>
+                <button data-action="export-day" data-ci="${ri}" data-date="${date}">📄 PDF</button>
+              </div>
+            </div>`;
+          }).join('')}
+          <div style="padding:10px 0 4px;">
+            <button class="btn btn-ghost btn-sm" data-action="add-day" data-ci="${ri}" style="width:100%;">+ इस चक्र में छूटी एंट्री जोड़ें</button>
+          </div>
+          ${txns.length?`<div class="sec-title" style="margin-top:10px;">लेन-देन</div>`:''}
+          ${txns.map(t=>`<div class="txn-item">
+            <div class="txn-l">
+              <div class="txn-label">${t.type==='credit'?'💰':'🛒'} ${escapeHtml(t.label)}</div>
+              <div class="txn-date">${formatShort(t.date)}</div>
+            </div>
+            <div class="txn-r">
+              <div class="txn-amt ${t.type}">${t.type==='credit'?'+':'−'}₹${t.amount.toFixed(2)}</div>
+              <div class="txn-actions">
+                <button data-action="edit-txn" data-ci="${ri}" data-tid="${t.id}">✏️</button>
+                <button class="del" data-action="del-txn" data-ci="${ri}" data-tid="${t.id}">🗑</button>
+              </div>
+            </div>
+          </div>`).join('')}
+          ${(dates.length>0||txns.length>0)?`<div style="padding-top:10px;"><button class="btn btn-ghost btn-sm" data-action="export-cyc" data-ci="${ri}" style="width:100%;">📄 चक्र ${cyc.cycleNumber} का PDF</button></div>`:''}
+        </div>
+      </div>`;
+    });
+  }
+
+  document.getElementById('screen-history').innerHTML=html;
+  document.querySelector('#exportAllBtn')?.addEventListener('click',exportAll);
+  document.querySelectorAll('[data-action="toggle-cyc"]').forEach(el=>el.addEventListener('click',()=>{
+    const idx=parseInt(el.dataset.ci);
+    openCycIdx=(openCycIdx===idx)?null:idx; renderHistory();
+  }));
+  document.querySelectorAll('[data-action="edit-day"]').forEach(el=>el.addEventListener('click',()=>openEdit(parseInt(el.dataset.ci),el.dataset.date)));
+  document.querySelectorAll('[data-action="del-day"]').forEach(el=>el.addEventListener('click',()=>delDay(parseInt(el.dataset.ci),el.dataset.date)));
+  document.querySelectorAll('[data-action="export-day"]').forEach(el=>el.addEventListener('click',()=>exportDay(parseInt(el.dataset.ci),el.dataset.date)));
+  document.querySelectorAll('[data-action="export-cyc"]').forEach(el=>el.addEventListener('click',()=>exportCycle(parseInt(el.dataset.ci))));
+  document.querySelectorAll('[data-action="add-day"]').forEach(el=>el.addEventListener('click',()=>addMissing(parseInt(el.dataset.ci))));
+  document.querySelectorAll('[data-action="edit-txn"]').forEach(el=>el.addEventListener('click',()=>{
+    const ci=parseInt(el.dataset.ci);
+    const t=state.cycles[ci].transactions.find(x=>x.id===el.dataset.tid);
+    if(t) openTxn(t,ci);
+  }));
+  document.querySelectorAll('[data-action="del-txn"]').forEach(el=>el.addEventListener('click',()=>{
+    const ci=parseInt(el.dataset.ci);
+    if(!confirm('इस लेन-देन को हटाएं?')) return;
+    state.cycles[ci].transactions=state.cycles[ci].transactions.filter(t=>t.id!==el.dataset.tid);
+    saveState(); showToast('🗑 हटाया गया'); renderHistory();
+  }));
+}
+
+function delDay(ci,date){
+  if(!confirm(`${formatDisplay(date)} की एंट्री हटाएं?`)) return;
+  delete state.cycles[ci].entries[date]; saveState(); showToast('🗑 एंट्री हटाई गई');
+  renderHistory(); if(date===homeDate) initDraft();
+}
+function addMissing(ci){
+  const cyc=state.cycles[ci];
+  const d=prompt('किस तारीख की एंट्री जोड़नी है? (YYYY-MM-DD)\nजैसे: '+cyc.startDate, cyc.startDate);
+  if(!d) return;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(d.trim())){ showToast('⚠️ सही फॉर्मेट डालें'); return; }
+  if(d.trim()<cyc.startDate||d.trim()>cyc.endDate){ showToast('⚠️ यह तारीख इस चक्र में नहीं'); return; }
+  openEdit(ci, d.trim());
+}
+
+// ─── EDIT MODAL ───
+let editDraft=null, editCtx=null;
+function openEdit(ci,date){
+  const cyc=state.cycles[ci];
+  editDraft=JSON.parse(JSON.stringify(getOrCreate(cyc,date)));
+  editCtx={ci,date};
+  document.getElementById('editModalTitle').textContent=`बदलें — ${formatDisplay(date)}`;
+  renderEditBody(); document.getElementById('editModal').classList.add('show');
+}
+function closeEdit(){ document.getElementById('editModal').classList.remove('show'); editDraft=null; editCtx=null; }
+function renderEditBody(){
+  document.getElementById('editModalBody').innerHTML=`
+    ${renderEditSlot('morning','सुबह')}
+    ${renderEditSlot('evening','शाम')}
+    <div class="btn-row" style="margin-top:6px;">
+      <button class="btn btn-outline" id="cancelEdit">रद्द करें</button>
+      <button class="btn btn-primary" id="saveEdit">सेव करें</button>
+    </div>`;
+  document.getElementById('cancelEdit').addEventListener('click',closeEdit);
+  document.getElementById('saveEdit').addEventListener('click',saveEdit);
+  document.querySelectorAll('#editModalBody [data-action="toggle-absent"]').forEach(b=>b.addEventListener('click',()=>{ editDraft[b.dataset.slot].absent=!editDraft[b.dataset.slot].absent; renderEditBody(); }));
+  document.querySelectorAll('#editModalBody .step-btn[data-step]').forEach(b=>b.addEventListener('click',()=>{
+    const s=b.dataset.slot,f=b.dataset.field,delta=parseFloat(b.dataset.step);
+    const cur=parseFloat(editDraft[s][f])||0;
+    editDraft[s][f]=round2(Math.max(0,cur+delta)); haptic(8); renderEditBody();
+  }));
+  document.querySelectorAll('#editModalBody input[data-field],#editModalBody textarea[data-field]').forEach(inp=>inp.addEventListener('input',()=>{
+    const s=inp.dataset.slot,f=inp.dataset.field;
+    if(f==='note'){ editDraft[s].note=inp.value; return; }
+    let v=inp.value; if(v!==''&&parseFloat(v)<0) v='0';
+    editDraft[s][f]=v===''?null:parseFloat(v);
+    const row=document.querySelector(`#editModalBody .slot-card[data-slot="${s}"] .aval`);
+    if(row) row.textContent=`₹${computeAmount(editDraft[s]).toFixed(2)}`;
+  }));
+}
+function renderEditSlot(k,label){
+  const slot=editDraft[k]; const absent=!!slot.absent; const amt=computeAmount(slot);
+  return `<div class="slot-card slot-${k} ${absent?'absent':''}" data-slot="${k}">
+    <div class="slot-accent"></div>
+    <div class="slot-head">
+      <div class="slot-title"><div class="slot-icon">${SLOT_ICONS[k]}</div><h3>${label}</h3></div>
+      <button class="absent-btn ${absent?'on':''}" data-action="toggle-absent" data-slot="${k}">${absent?'✕ गैरहाज़िर':'गैरहाज़िर'}</button>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>मात्रा (लीटर)</label>
+        <div class="stepper">
+          <button type="button" class="step-btn" data-step="-0.25" data-field="qty" data-slot="${k}" ${absent?'disabled':''}>−</button>
+          <input type="number" step="0.01" min="0" inputmode="decimal" data-field="qty" data-slot="${k}" value="${slot.qty??''}" ${absent?'disabled':''}>
+          <button type="button" class="step-btn" data-step="0.25" data-field="qty" data-slot="${k}" ${absent?'disabled':''}>+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>फैट %</label>
+        <div class="stepper">
+          <button type="button" class="step-btn" data-step="-0.1" data-field="fat" data-slot="${k}" ${absent?'disabled':''}>−</button>
+          <input type="number" step="0.1" min="0" inputmode="decimal" data-field="fat" data-slot="${k}" value="${slot.fat??''}" ${absent?'disabled':''}>
+          <button type="button" class="step-btn" data-step="0.1" data-field="fat" data-slot="${k}" ${absent?'disabled':''}>+</button>
+        </div>
+      </div>
+    </div>
+    <div class="note-wrap">
+      <label>टिप्पणी</label>
+      <textarea rows="2" data-field="note" data-slot="${k}">${escapeHtml(slot.note||'')}</textarea>
+    </div>
+    <div class="amount-row"><span class="albl">${absent?'गैरहाज़िर — ₹0':'अमाउंट'}</span><span class="aval">₹${amt.toFixed(2)}</span></div>
+  </div>`;
+}
+function saveEdit(){
+  ['morning','evening'].forEach(k=>{
+    editDraft[k].amount=computeAmount(editDraft[k]);
+    if(editDraft[k].rate==null) editDraft[k].rate=state.settings.ratePerFatPoint;
+  });
+  const {ci,date}=editCtx;
+  state.cycles[ci].entries[date]=JSON.parse(JSON.stringify(editDraft));
+  saveState(); closeEdit(); showToast('✅ एंट्री अपडेट हो गई'); renderHistory();
+  if(date===homeDate) initDraft();
+}
+
+// ─── INSIGHTS ───
+let insightScope='cycle';
+function renderInsights(){
+  const days=collectDays(insightScope);
+  const cyc=insightScope==='cycle'?currentCycle():null;
+  const sTxnNet=insightScope==='cycle'?txnNet(cyc):round2(state.cycles.reduce((s,c)=>s+txnNet(c),0));
+  const totalLit=round2(days.reduce((s,d)=>s+d.qty,0));
+  const allFats=days.flatMap(d=>d.fats);
+  const avgFat=allFats.length?round2(allFats.reduce((a,b)=>a+b,0)/allFats.length):0;
+  const dWM=days.filter(d=>d.qty>0);
+  const avgAmt=dWM.length?round2(dWM.reduce((s,d)=>s+d.total,0)/dWM.length):0;
+  const best=days.reduce((b,d)=>(!b||d.total>b.total)?d:b,null);
+  const streak=currentStreak();
+
+  if(!days.length){
+    document.getElementById('screen-insights').innerHTML=`
+    <div class="pill-row">
+      <button class="pill ${insightScope==='cycle'?'active':''}" data-scope="cycle">इस चक्र में</button>
+      <button class="pill ${insightScope==='all'?'active':''}" data-scope="all">कुल मिलाकर</button>
+    </div>
+    <div class="empty"><div class="em">📊</div><p>अभी कोई डेटा नहीं।<br>होम से कुछ एंट्री भरें।</p></div>`;
+    document.querySelectorAll('.pill[data-scope]').forEach(b=>b.addEventListener('click',()=>{ insightScope=b.dataset.scope; renderInsights(); }));
+    return;
+  }
+
+  document.getElementById('screen-insights').innerHTML=`
+  <div class="pill-row">
+    <button class="pill ${insightScope==='cycle'?'active':''}" data-scope="cycle">इस चक्र में</button>
+    <button class="pill ${insightScope==='all'?'active':''}" data-scope="all">कुल मिलाकर</button>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-tile"><div class="st-label">कुल लीटर</div><div class="st-val">${totalLit} ली</div></div>
+    <div class="stat-tile"><div class="st-label">औसत फैट %</div><div class="st-val">${avgFat||'—'}</div></div>
+    <div class="stat-tile"><div class="st-label">औसत ₹/दिन</div><div class="st-val">₹${avgAmt.toFixed(2)}</div></div>
+    <div class="stat-tile"><div class="st-label">🔥 लगातार दिन</div><div class="st-val">${streak}</div></div>
+  </div>
+  <div class="card" style="padding:14px;">
+    <div class="chart-title">रोज़ की कमाई का ग्राफ</div>
+    <canvas id="insightsCanvas"></canvas>
+    <div class="chart-legend">
+      <span>${days.length?formatShort(days[Math.max(0,days.length-14)].date):''}</span>
+      <span>${days.length?formatShort(days[days.length-1].date):''}</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sec-title" style="margin-top:0;">खास बातें</div>
+    <div style="font-size:13px;color:var(--ink2);line-height:2;">
+      ${best?`🏆 सबसे अच्छा दिन: <b style="color:var(--ink)">${formatDisplay(best.date)}</b> — ₹${best.total.toFixed(2)}<br>`:''}
+      📅 दर्ज दिन: <b style="color:var(--ink)">${days.filter(d=>d.qty>0||d.abs>0).length}</b><br>
+      ${sTxnNet!==0?`${sTxnNet<0?'🛒':'💰'} लेन-देन: <b style="color:${sTxnNet<0?'var(--red)':'var(--primary)'}">${sTxnNet<0?'−':'+'}₹${Math.abs(sTxnNet).toFixed(2)}</b>`:'🧾 कोई लेन-देन दर्ज नहीं'}
+    </div>
+  </div>`;
+
+  document.querySelectorAll('.pill[data-scope]').forEach(b=>b.addEventListener('click',()=>{ insightScope=b.dataset.scope; renderInsights(); }));
+  drawChart(days.slice(-14));
+}
+
+function collectDays(scope){
+  const cycles=scope==='cycle'?[currentCycle()]:state.cycles;
+  let days=[];
+  cycles.forEach(c=>Object.keys(c.entries).forEach(date=>{
+    const e=c.entries[date]; const m=e.morning||{},ev=e.evening||{};
+    const total=round2((m.amount||0)+(ev.amount||0));
+    const qty=(m.absent?0:(parseFloat(m.qty)||0))+(ev.absent?0:(parseFloat(ev.qty)||0));
+    const fats=[];
+    if(!m.absent&&m.fat!=null) fats.push(parseFloat(m.fat));
+    if(!ev.absent&&ev.fat!=null) fats.push(parseFloat(ev.fat));
+    days.push({date,total,qty,fats,abs:(m.absent?1:0)+(ev.absent?1:0)});
+  }));
+  return days.sort((a,b)=>a.date.localeCompare(b.date));
+}
+
+function drawChart(days){
+  const canvas=document.getElementById('insightsCanvas'); if(!canvas) return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.clientWidth||canvas.parentElement.clientWidth,H=120;
+  canvas.width=W*dpr; canvas.height=H*dpr; canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  const styles=getComputedStyle(document.documentElement);
+  const primary=styles.getPropertyValue('--primary').trim()||'#1B7A4A';
+  const accent=styles.getPropertyValue('--accent').trim()||'#F0A500';
+  const max=Math.max(...days.map(d=>d.total),1);
+  const gap=4, barW=(W-gap*(days.length-1))/days.length;
+  days.forEach((d,i)=>{
+    const barH=(d.total/max)*(H-16);
+    const x=i*(barW+gap),y=H-barH-10;
+    ctx.fillStyle=d.total===max?accent:primary;
+    ctx.globalAlpha=d.abs>0&&d.qty===0?0.3:1;
+    rrect(ctx,x,y,barW,barH,4); ctx.fill();
+    ctx.globalAlpha=1;
+  });
+}
+function rrect(ctx,x,y,w,h,r){
+  h=Math.max(h,2);r=Math.min(r,w/2,h/2);
+  ctx.beginPath();ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+
+// ─── SETTINGS ───
+function renderSettings(){
+  const s=state.settings; const cyc=currentCycle();
+  document.getElementById('screen-settings').innerHTML=`
+  <div class="settings-group">
+    <div class="settings-group-title">दर सेटिंग</div>
+    <div class="s-row">
+      <label>भाव (₹ प्रति फैट पॉइंट)</label>
+      <input type="number" step="0.01" min="0" inputmode="decimal" id="rateInput" value="${s.ratePerFatPoint||''}" placeholder="जैसे 8">
+      <div class="hint">नई एंट्री पर लागू होगा। पुरानी एंट्री का भाव वही रहेगा।</div>
+    </div>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-group-title">चक्र सेटिंग</div>
+    <div class="s-row">
+      <label>चक्र प्रकार</label>
+      <div class="type-row">
+        <button type="button" class="type-btn ${s.cycleType==='calendar'?'active':''}" data-ct="calendar">📅 महीने से जुड़ा</button>
+        <button type="button" class="type-btn ${s.cycleType==='rolling'?'active':''}" data-ct="rolling">🔄 रोलिंग</button>
+      </div>
+      <div class="hint">"महीने से जुड़ा" — हर महीना N दिन के हिसाब से बंटेगा (N=15: 1-15, 16-31)।<br>"रोलिंग" — हर N दिन बाद नया चक्र।</div>
+    </div>
+    <div class="s-row">
+      <label>चक्र लंबाई (दिन)</label>
+      <input type="number" step="1" min="1" inputmode="numeric" id="cycleDaysInput" value="${s.contractDays||15}">
+      <div class="hint">15 = पहला चक्र 1-15, दूसरा 16-31</div>
+    </div>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-group-title">ग्राहक / डेयरी</div>
+    <div class="s-row">
+      <label>नाम (वैकल्पिक)</label>
+      <input type="text" id="customerInput" value="${escapeHtml(s.customerName||'')}" placeholder="जैसे: शर्मा डेयरी">
+      <div class="hint">PDF पर दिखेगा।</div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="saveSettingsBtn" style="margin-bottom:12px;">सेटिंग सेव करें</button>
+
+  <div class="settings-group">
+    <div class="settings-group-title">चक्र नियंत्रण</div>
+    <div class="cycle-chip">चालू चक्र ${cyc.cycleNumber}: ${formatShort(cyc.startDate)} – ${formatShort(cyc.endDate)}</div>
+    <button class="btn btn-ghost" id="newCycleBtn">🔄 अभी नया चक्र शुरू करें</button>
+  </div>
+
+  <div class="danger-group">
+    <div class="danger-title">⚠️ खतरे वाला ज़ोन</div>
+    <div class="danger-hint">इससे इस डिवाइस से सारी एंट्री, चक्र और सेटिंग हमेशा के लिए मिट जाएंगी।</div>
+    <button class="btn btn-danger" id="resetBtn">🗑 सारा डेटा मिटाएं</button>
+  </div>
+
+  <div class="card about-card">
+    <div class="about-icon" style="font-size:24px;">🥛</div>
+    <div style="font-size:11.5px;color:var(--ink2);margin-bottom:2px;">दूध हिसाब v2.0</div>
+    <div class="about-name">Developed by Narpat Prihar</div>
+    <div class="about-sub">Telegram: @narpatprihar</div>
+  </div>`;
+
+  document.querySelectorAll('.type-btn[data-ct]').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.type-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  }));
+
+  document.getElementById('saveSettingsBtn').addEventListener('click',()=>{
+    const rate=parseFloat(document.getElementById('rateInput').value);
+    const days2=parseInt(document.getElementById('cycleDaysInput').value);
+    const cust=document.getElementById('customerInput').value.trim();
+    const ctBtn=document.querySelector('.type-btn.active');
+    const ct=ctBtn?ctBtn.dataset.ct:s.cycleType;
+    state.settings.ratePerFatPoint=isNaN(rate)||rate<0?0:rate;
+    state.settings.contractDays=isNaN(days2)||days2<1?15:days2;
+    state.settings.customerName=cust;
+    state.settings.cycleType=ct;
+    alignCycleBounds(currentCycle(),true);
+    saveState(); updateLabel(); showToast('✅ सेटिंग सेव हो गई'); initDraft(); renderSettings();
+  });
+
+  document.getElementById('newCycleBtn').addEventListener('click',startNewCycle);
+
+  document.getElementById('resetBtn').addEventListener('click',()=>{
+    const t=prompt('सारा डेटा हमेशा के लिए मिटेगा। पक्के के लिए DELETE टाइप करें।');
+    if(t==='DELETE'){
+      localStorage.removeItem(STORAGE_KEY);
+      state=defaultState(); alignCycleBounds(state.cycles[0],false); saveState();
+      updateLabel(); homeDate=todayStr(); initDraft(); showToast('🗑 सारा डेटा मिटाया गया'); switchTab('home');
+    } else if(t!==null){ showToast('रीसेट रद्द'); }
+  });
+}
+
+function updateLabel(){
+  document.getElementById('customerLabel').textContent=state.settings.customerName||'डेयरी बहीखाता';
+}
+
+// ─── PDF EXPORT ───
+let hindiFontB64=null, hindiFontOk=null;
+
+async function ensureFont(){
+  if(hindiFontOk!==null) return hindiFontOk;
+  try{
+    const cached=localStorage.getItem('doodhHisabFontV1');
+    if(cached){ hindiFontB64=cached; hindiFontOk=true; return true; }
+  }catch(e){}
+  const urls=[
+    'https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts/hinted/ttf/NotoSansDevanagari/NotoSansDevanagari-Regular.ttf',
+    'https://raw.githubusercontent.com/googlefonts/noto-fonts/main/hinted/ttf/NotoSansDevanagari/NotoSansDevanagari-Regular.ttf'
+  ];
+  for(const url of urls){
+    try{
+      const r=await fetch(url); if(!r.ok) continue;
+      const buf=await r.arrayBuffer();
+      let bin=''; const bytes=new Uint8Array(buf);
+      for(let i=0;i<bytes.length;i+=0x8000) bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));
+      hindiFontB64=btoa(bin);
+      try{ localStorage.setItem('doodhHisabFontV1',hindiFontB64); }catch(e){}
+      hindiFontOk=true; return true;
+    }catch(e){}
+  }
+  hindiFontOk=false; return false;
+}
+
+async function makePdf(landscape){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF(landscape?{orientation:'landscape'}:{});
+  const fontOk=await ensureFont();
+  let FONT='helvetica';
+  if(fontOk&&hindiFontB64){
+    try{
+      doc.addFileToVFS('NotoHindi.ttf',hindiFontB64);
+      doc.addFont('NotoHindi.ttf','NotoHindi','normal');
+      doc.addFont('NotoHindi.ttf','NotoHindi','bold');
+      doc.setFont('NotoHindi','normal'); FONT='NotoHindi';
+    }catch(e){}
+  }
+  return {doc,FONT,fontOk};
+}
+
+function L(fontOk,hi,en){ return fontOk?hi:en; }
+
+function pdfHeader(doc,FONT,fontOk,hi,en){
+  doc.setFont(FONT,'bold'); doc.setFontSize(15);
+  doc.setTextColor(27,122,74);
+  doc.text(L(fontOk,hi,en),14,16);
+  doc.setTextColor(0);
+  doc.setFont(FONT,'normal'); doc.setFontSize(10);
+  const cust=state.settings.customerName||'';
+  let y=24;
+  if(cust){ doc.text(`${L(fontOk,'ग्राहक/डेयरी','Customer')}: ${cust}`,14,y); y+=6; }
+  doc.text(`${L(fontOk,'भाव (₹/फैट)','Rate/fat')}: ₹${state.settings.ratePerFatPoint}`,14,y); y+=6;
+  doc.text(`${L(fontOk,'बना','Generated')}: ${new Date().toLocaleString('en-IN')}`,14,y); y+=8;
+  return y;
+}
+
+function pdfFooter(doc){
+  const n=doc.internal.getNumberOfPages();
+  for(let i=1;i<=n;i++){
+    doc.setPage(i);
+    const h=doc.internal.pageSize.getHeight();
+    doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(120);
+    doc.text('Developed by Narpat Prihar  |  @narpatprihar',14,h-8);
+    doc.setTextColor(0);
+  }
+}
+
+async function shareOrSave(doc,filename,title){
+  let blob;
+  try{ blob=doc.output('blob'); }catch(e){ doc.save(filename); return; }
+  try{
+    const file=new File([blob],filename,{type:'application/pdf'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){
+      await navigator.share({files:[file],title:title||filename,text:title||''});
+      showToast('📤 PDF शेयर के लिए भेजा गया'); return;
+    }
+  }catch(err){
+    if(err?.name==='AbortError') return;
+  }
+  doc.save(filename);
+  showToast('📥 PDF डाउनलोड हो रहा है...');
+}
+
+async function exportDay(ci,date){
+  showToast('📄 PDF बन रहा है...');
+  const {doc,FONT,fontOk}=await makePdf(false);
+  const entry=state.cycles[ci].entries[date];
+  const m=entry.morning,e=entry.evening;
+  const dt=round2((m.amount||0)+(e.amount||0));
+  let y=pdfHeader(doc,FONT,fontOk,'दूध हिसाब — दैनिक रसीद','Doodh Hisab — Daily Receipt');
+  doc.setFont(FONT,'normal'); doc.setFontSize(11);
+  doc.text(`${L(fontOk,'तारीख','Date')}: ${formatShort(date)}`,14,y); y+=8;
+  const ab=L(fontOk,'गैरहाज़िर','Absent');
+  doc.autoTable({
+    startY:y,
+    head:[[L(fontOk,'समय','Slot'),L(fontOk,'मात्रा','Qty(L)'),L(fontOk,'फैट %','Fat%'),L(fontOk,'भाव','Rate'),L(fontOk,'अमाउंट','Amount'),L(fontOk,'टिप्पणी','Note')]],
+    body:[
+      [L(fontOk,'सुबह','Morning'),m.absent?ab:(m.qty??0),m.absent?'-':(m.fat??0),m.absent?'-':('₹'+(m.rate??0)),'₹'+(m.amount||0).toFixed(2),m.note||'-'],
+      [L(fontOk,'शाम','Evening'),e.absent?ab:(e.qty??0),e.absent?'-':(e.fat??0),e.absent?'-':('₹'+(e.rate??0)),'₹'+(e.amount||0).toFixed(2),e.note||'-'],
+    ],
+    foot:[['','','',L(fontOk,'कुल','Total'),'₹'+dt.toFixed(2),'']],
+    theme:'grid',styles:{font:FONT,fontSize:10},
+    headStyles:{font:FONT,fillColor:[27,122,74]},
+    footStyles:{font:FONT,fillColor:[212,237,225],textColor:[20,80,50],fontStyle:'bold'},
+    columnStyles:{0:{cellWidth:28},1:{cellWidth:20},2:{cellWidth:18},3:{cellWidth:22},4:{cellWidth:24},5:{cellWidth:'auto'}},
+  });
+  pdfFooter(doc);
+  await shareOrSave(doc,`doodh-hisab-${date}.pdf`,`दूध हिसाब — ${formatShort(date)}`);
+}
+
+function buildCycleRows(cyc,fontOk){
+  const ab=L(fontOk,'गैरहाज़िर','Absent');
+  const dates=Object.keys(cyc.entries).sort();
+  const rows=dates.map(date=>{
+    const e=cyc.entries[date]; const m=e.morning||{},ev=e.evening||{};
+    const dt=round2((m.amount||0)+(ev.amount||0));
+    const notes=[m.note,ev.note].filter(Boolean).join(' | ');
+    return [
+      formatShort(date),
+      m.absent?'-':(m.qty??0),m.absent?'-':(m.fat??0),m.absent?'-':('₹'+(m.amount||0).toFixed(2)),
+      ev.absent?'-':(ev.qty??0),ev.absent?'-':(ev.fat??0),ev.absent?'-':('₹'+(ev.amount||0).toFixed(2)),
+      '₹'+dt.toFixed(2),notes||'-'
+    ];
+  });
+  const txnRows=(cyc.transactions||[]).slice().sort((a,b)=>a.date.localeCompare(b.date)).map(t=>[
+    formatShort(t.date),t.type==='credit'?L(fontOk,'जमा (+)','Credit(+)'):L(fontOk,'उधार (−)','Debit(-)'),t.label,
+    (t.type==='credit'?'+':'-')+'₹'+t.amount.toFixed(2)
+  ]);
+  return {rows,txnRows,milk:milkTotal(cyc),tnet:txnNet(cyc),net:cycleNet(cyc)};
+}
+
+async function exportCycle(ci){
+  showToast('📄 PDF बन रहा है...');
+  const {doc,FONT,fontOk}=await makePdf(true);
+  const cyc=state.cycles[ci];
+  let y=pdfHeader(doc,FONT,fontOk,
+    `दूध हिसाब — चक्र ${cyc.cycleNumber} (${formatShort(cyc.startDate)}-${formatShort(cyc.endDate)})`,
+    `Doodh Hisab — Cycle ${cyc.cycleNumber}`);
+  const {rows,txnRows,milk,tnet,net}=buildCycleRows(cyc,fontOk);
+  doc.autoTable({
+    startY:y,
+    head:[[L(fontOk,'तारीख','Date'),L(fontOk,'सुबह ली','M Qty'),L(fontOk,'सुबह फैट','M Fat'),L(fontOk,'सुबह ₹','M Rs'),L(fontOk,'शाम ली','E Qty'),L(fontOk,'शाम फैट','E Fat'),L(fontOk,'शाम ₹','E Rs'),L(fontOk,'दिन कुल','Day Total'),L(fontOk,'टिप्पणी','Notes')]],
+    body:rows.length?rows:[[L(fontOk,'कोई एंट्री नहीं','No entries'),'','','','','','','','']],
+    foot:[['','','','','','',L(fontOk,'दूध कुल','Milk Total'),'₹'+milk.toFixed(2),'']],
+    theme:'grid',styles:{font:FONT,fontSize:9},headStyles:{font:FONT,fillColor:[27,122,74]},
+    footStyles:{font:FONT,fillColor:[212,237,225],textColor:[20,80,50],fontStyle:'bold'},
+    columnStyles:{0:{cellWidth:22},1:{cellWidth:15},2:{cellWidth:15},3:{cellWidth:20},4:{cellWidth:15},5:{cellWidth:15},6:{cellWidth:20},7:{cellWidth:22},8:{cellWidth:'auto'}},
+  });
+  y=doc.lastAutoTable.finalY+8;
+  if(txnRows.length){
+    doc.setFont(FONT,'bold'); doc.setFontSize(11);
+    doc.text(L(fontOk,'लेन-देन','Transactions'),14,y); y+=4;
+    doc.autoTable({
+      startY:y,head:[[L(fontOk,'तारीख','Date'),L(fontOk,'प्रकार','Type'),L(fontOk,'विवरण','Label'),L(fontOk,'राशि','Amount')]],body:txnRows,
+      foot:[['','',L(fontOk,'नेट','Net Txn'),(tnet<0?'-':'+')+' ₹'+Math.abs(tnet).toFixed(2)]],
+      theme:'grid',styles:{font:FONT,fontSize:9},headStyles:{font:FONT,fillColor:[201,139,26]},
+      footStyles:{font:FONT,fillColor:[254,247,230],textColor:[150,100,20],fontStyle:'bold'},
+    });
+    y=doc.lastAutoTable.finalY+10;
+  }
+  doc.setFont(FONT,'bold'); doc.setFontSize(12);
+  const sign=net<0?'−':'';
+  doc.text(`${L(fontOk,'चक्र नेट कुल','Cycle Net')}: ${sign}₹${Math.abs(net).toFixed(2)} ${net<0?L(fontOk,'(देने हैं)','(Owe)'):L(fontOk,'(मिलने हैं)','(Receive)')}`,14,y);
+  pdfFooter(doc);
+  await shareOrSave(doc,`doodh-hisab-cycle-${cyc.cycleNumber}.pdf`,`दूध हिसाब — चक्र ${cyc.cycleNumber}`);
+}
+
+async function exportAll(){
+  showToast('📄 PDF बन रहा है...');
+  const {doc,FONT,fontOk}=await makePdf(true);
+  let y=pdfHeader(doc,FONT,fontOk,'दूध हिसाब — पूरा इतिहास (सभी चक्र)','Doodh Hisab — Full History');
+  state.cycles.forEach((cyc,i)=>{
+    const {rows,txnRows,milk,tnet,net}=buildCycleRows(cyc,fontOk);
+    if(!rows.length&&!txnRows.length) return;
+    doc.setFont(FONT,'bold'); doc.setFontSize(11);
+    doc.text(`${L(fontOk,'चक्र','Cycle')} ${cyc.cycleNumber} (${formatShort(cyc.startDate)} - ${formatShort(cyc.endDate)})`,14,y);
+    doc.setFont(FONT,'normal'); y+=4;
+    if(rows.length){
+      doc.autoTable({
+        startY:y,
+        head:[[L(fontOk,'तारीख','Date'),L(fontOk,'सुबह ली','M Qty'),L(fontOk,'सुबह फैट','M Fat'),L(fontOk,'सुबह ₹','M Rs'),L(fontOk,'शाम ली','E Qty'),L(fontOk,'शाम फैट','E Fat'),L(fontOk,'शाम ₹','E Rs'),L(fontOk,'दिन कुल','Day Total'),L(fontOk,'टिप्पणी','Notes')]],
+        body:rows,foot:[['','','','','','',L(fontOk,'दूध कुल','Milk Total'),'₹'+milk.toFixed(2),'']],
+        theme:'grid',styles:{font:FONT,fontSize:8.5},headStyles:{font:FONT,fillColor:[27,122,74]},
+        footStyles:{font:FONT,fillColor:[212,237,225],textColor:[20,80,50],fontStyle:'bold'},
+        columnStyles:{0:{cellWidth:20},1:{cellWidth:14},2:{cellWidth:14},3:{cellWidth:18},4:{cellWidth:14},5:{cellWidth:14},6:{cellWidth:18},7:{cellWidth:20},8:{cellWidth:'auto'}},
+      });
+      y=doc.lastAutoTable.finalY+6;
+    }
+    if(txnRows.length){
+      doc.autoTable({
+        startY:y,head:[[L(fontOk,'तारीख','Date'),L(fontOk,'प्रकार','Type'),L(fontOk,'विवरण','Label'),L(fontOk,'राशि','Amount')]],body:txnRows,
+        foot:[['','',L(fontOk,'नेट','Net'),(tnet<0?'-':'+')+' ₹'+Math.abs(tnet).toFixed(2)]],
+        theme:'grid',styles:{font:FONT,fontSize:8.5},headStyles:{font:FONT,fillColor:[201,139,26]},
+        footStyles:{font:FONT,fillColor:[254,247,230],textColor:[150,100,20],fontStyle:'bold'},
+      });
+      y=doc.lastAutoTable.finalY+6;
+    }
+    doc.setFont(FONT,'bold'); doc.setFontSize(10);
+    doc.text(`${L(fontOk,'चक्र नेट','Cycle Net')}: ${net<0?'−':''}₹${Math.abs(net).toFixed(2)}`,14,y); y+=10;
+    if(y>175&&i<state.cycles.length-1){ doc.addPage(); y=20; }
+  });
+  doc.setFont(FONT,'bold'); doc.setFontSize(12);
+  const g=grandNet();
+  doc.text(`${L(fontOk,'कुल मिलाकर नेट','All-Time Net')}: ${g<0?'−':''}₹${Math.abs(g).toFixed(2)} ${g<0?L(fontOk,'(देने हैं)','(Owe)'):L(fontOk,'(मिलने हैं)','(Receive)')}`,14,y);
+  pdfFooter(doc);
+  await shareOrSave(doc,'doodh-hisab-all.pdf','दूध हिसाब — पूरा इतिहास');
+}
+
+// ─── TAB SWITCHING ───
+let currentTab='home';
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+tab).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  renderTab();
+}
+function renderTab(){
+  if(currentTab==='home') renderHome();
+  else if(currentTab==='history') renderHistory();
+  else if(currentTab==='insights') renderInsights();
+  else if(currentTab==='settings') renderSettings();
+}
+
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+['editModal','txnModal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){
+    if(e.target===this){ if(id==='editModal') closeEdit(); else closeTxn(); }
+  });
+});
+
+// ─── INIT ───
+loadState();
+loadTheme();
+updateLabel();
+const rolled=rollCyclesIfNeeded();
+initDraft();
+renderHome();
+if(rolled){
+  setTimeout(()=>{ fireConfetti(); showToast(`🎉 चक्र ${currentCycle().cycleNumber-1} पूरा हुआ! नया चक्र शुरू`); },400);
+}
+</script>
+</body>
+</html>
