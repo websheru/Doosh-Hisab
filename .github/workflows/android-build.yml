@@ -48,7 +48,7 @@ jobs:
 
       # ── 7. Add Android platform ───────────────────────────────────────────
       - name: Add Android platform
-        run: cordova platform add android@13.0.0 --nosave
+        run: cordova platform add android@13.0.0 || true
 
       # ── 8. Build debug APK ────────────────────────────────────────────────
       - name: Build Debug APK
