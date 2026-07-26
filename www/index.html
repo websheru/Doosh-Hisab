@@ -16,10 +16,57 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/assets/index-Bjbx8Avw.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-32Hk1o4C.css">
+    
+    <!-- Changed to relative paths -->
+    <script type="module" crossorigin src="./assets/index-Bjbx8Avw.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-32Hk1o4C.css">
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- Cordova JS for Native Features -->
+    <script src="cordova.js"></script>
+
+    <!-- Download Fix Script -->
+    <script>
+      document.addEventListener('deviceready', function() {
+        document.addEventListener('click', function(event) {
+          var target = event.target.closest('a');
+          
+          if (target && target.hasAttribute('download') && target.href.startsWith('blob:')) {
+            event.preventDefault(); 
+            
+            var fileName = target.getAttribute('download') || 'MeraShelf_Backup.zip';
+            var blobUrl = target.href;
+
+            fetch(blobUrl)
+              .then(function(res) { return res.blob(); })
+              .then(function(blob) {
+                 if (!window.cordova || !window.resolveLocalFileSystemURL) {
+                     alert("Cordova File plugin is missing!");
+                     return;
+                 }
+
+                 var storageLocation = cordova.file.externalRootDirectory + 'Download/';
+                 
+                 window.resolveLocalFileSystemURL(storageLocation, function(dirEntry) {
+                     dirEntry.getFile(fileName, { create: true, exclusive: false }, function(fileEntry) {
+                         fileEntry.createWriter(function(fileWriter) {
+                             fileWriter.onwriteend = function() {
+                                 alert("✅ Success! Backup saved in Downloads folder as " + fileName);
+                             };
+                             fileWriter.onerror = function(e) {
+                                 alert("❌ Failed to save file.");
+                             };
+                             fileWriter.write(blob); 
+                         });
+                     }, function(err) { alert("File creation error: " + err.code); });
+                 }, function(err) { alert("Please grant Storage permission to the app!"); });
+              })
+              .catch(function(err) { alert("Failed to prepare zip file."); });
+          }
+        }, true);
+      }, false);
+    </script>
   </body>
 </html>
