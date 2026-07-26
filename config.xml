@@ -1,13 +1,56 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.narpat.doodhhisab" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Doodh Hisab</name>
-    <description>
-        A sample Apache Cordova application that responds to the deviceready event.
-    </description>
-    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
-        Apache Cordova Team
+<widget id="com.merashelf.app" version="1.0.0"
+    xmlns="http://www.w3.org/ns/widgets"
+    xmlns:cdv="http://cordova.apache.org/ns/1.0">
+
+    <name>Study Pro</name>
+    <description>Premium offline study reading app — apni padhai kabhi bhi, kahin bhi.</description>
+    <author email="narpatprihar2004@gmail.com" href="https://github.com/websheru">
+        Narpat Prihar
     </author>
+
+    <!-- Entry point -->
     <content src="index.html" />
+
+    <!-- Network access -->
+    <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+
+    <!-- Preferences -->
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarBackgroundColor" value="#1a1208" />
+    <preference name="StatusBarStyle" value="lightcontent" />
+    <preference name="Fullscreen" value="false" />
+    <preference name="SplashScreenDelay" value="2000" />
+    <preference name="FadeSplashScreenDuration" value="500" />
+    <preference name="AutoHideSplashScreen" value="true" />
+    <preference name="SplashMaintainAspectRatio" value="true" />
+
+    <!-- Android platform -->
+    <platform name="android">
+        <allow-intent href="market:*" />
+
+        <!-- AndroidX required for modern Cordova -->
+        <preference name="AndroidXEnabled" value="true" />
+        <preference name="android-minSdkVersion" value="24" />
+        <preference name="android-targetSdkVersion" value="34" />
+        <preference name="android-compileSdkVersion" value="34" />
+
+        <!-- App icon -->
+        <icon src="resources/icon.png" />
+
+        <!-- Splash screens -->
+        <splash src="resources/splash.png" />
+
+        <!-- Hardware back button -->
+        <preference name="OverrideUserAgent" value="false" />
+        <preference name="AppendUserAgent" value="MeraShelf/1.0" />
+    </platform>
+
 </widget>
